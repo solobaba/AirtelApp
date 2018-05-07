@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string-array name="array_request_source">
-        <item>@string/unknown</item>
+        <!--<item>@string/unknown</item>-->
         <item>@string/spinnertype1</item>
         <item>@string/spinnertype2</item>
         <item>@string/spinnertype3</item>

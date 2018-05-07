@@ -20,7 +20,7 @@
     <string name="time_done">Time Done</string>
 
     <!--Spinner details… -->
-    <string name="unknown">Unknown</string>
+    <!--<string name="unknown">Unknown</string>-->
     <string name="spinnertype1">Airtime</string>
     <string name="spinnertype2">Cash</string>
     <string name="spinnertype3">Agent</string>

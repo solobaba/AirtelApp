@@ -83,8 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:entries="@array/array_request_source"
-        android:prompt="@string/unknown"
-        android:spinnerMode="dropdown"/>
+        android:prompt="@string/spinnertype1"/>
 
     <Button
         android:id="@+id/send_data_button"
