@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".CreateUser">
+
+    <item
+        android:id="@+id/log_data"
+        android:title="@string/log_data"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/check_balance_request"
+        android:title="@string/check_balance_request"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/request_sent"
+        android:title="@string/request_sent"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/contact_network"
+        android:title="@string/contact_network"
+        app:showAsAction="never" />
+
+</menu>

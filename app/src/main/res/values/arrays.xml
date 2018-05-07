@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="array_request_source">
+        <item>@string/unknown</item>
+        <item>@string/spinnertype1</item>
+        <item>@string/spinnertype2</item>
+        <item>@string/spinnertype3</item>
+        <item>@string/spinnertype4</item>
+        <item>@string/spinnertype5</item>
+        <item>@string/spinnertype6</item>
+    </string-array>
+
+    <string-array name="telcos">
+        <item name="telco_airtel">AIRTEL</item>
+    </string-array>
+</resources>

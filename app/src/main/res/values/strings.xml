@@ -1,0 +1,39 @@
+<resources>
+    <string name="app_name">AirtelApp</string>
+    <string name="accessibility_description">This service records pop ups sent by your mobile operator, and saves them in USSDService App</string>
+    <string name="airtime_balance">Check Balance</string>
+
+    <!--check airtime balance buttons-->
+    <string name="check_airtel_balance_button">Airtel</string>
+
+    <string name="config_service">My Response</string>
+    <string name="action_log">Log</string>
+
+    <!--Data requesting details… -->
+    <string name="recipient_number">Recipient Number</string>
+    <string name="data_bundle_value">Data Bundle Value</string>
+    <string name="data_bundle_name">Data Bundle Name</string>
+    <string name="data_bundle_cost">Data Bundle Cost</string>
+    <string name="time_received">Time Received</string>
+    <string name="request_source">Request Source</string>
+    <string name="status">Status</string>
+    <string name="time_done">Time Done</string>
+
+    <!--Spinner details… -->
+    <string name="unknown">Unknown</string>
+    <string name="spinnertype1">Airtime</string>
+    <string name="spinnertype2">Cash</string>
+    <string name="spinnertype3">Agent</string>
+    <string name="spinnertype4">Sales Rep</string>
+    <string name="spinnertype5">Web</string>
+    <string name="spinnertype6">API</string>
+
+    <!--Buttons details… -->
+    <string name="send_data_button">Send Data</string>
+
+    <!--menu details-->
+    <string name="log_data">Log Data</string>
+    <string name="check_balance_request">Check Balance Request</string>
+    <string name="request_sent">Request Sent</string>
+    <string name="contact_network">Contact Network</string>
+</resources>
