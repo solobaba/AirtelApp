@@ -54,6 +54,8 @@ public class CreateUser extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_user);
+        Intent intent = new Intent(this, QueryService.class);
+        startService(intent);
 
         mDbHelper = new DataDbHelper(this);
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -78,24 +80,6 @@ public class CreateUser extends AppCompatActivity {
                 finish();
             }
         });
-
-//        final AppDatabase db = Room.databaseBuilder(getApplicationContext(), AppDatabase.class, "production")
-//                .build();
-//
-//        List<User> users = (List<User>) db.userDao().getAllUsers();
-//
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                for (int i = 0; i < 10; i++) {
-//                    User user = new User(recipientNumber.getText().toString().trim(), dataBundleName.getText().toString().trim(),
-//                            dataBundleValue.getText().toString().trim(), dataBundleCost.getText().toString().trim(),
-//                            spinnerRow.getSelectedItem().toString().trim());
-//                    db.userDao().insertAll(user);
-//                }
-//                startActivity(new Intent(CreateUser.this, MainActivity.class));
-//            }
-//        });
     }
 
     // Setup the dropdown spinner
@@ -143,7 +127,6 @@ public class CreateUser extends AppCompatActivity {
         String dataValue = dataBundleValue.getText().toString().trim();
         String dataCost = dataBundleCost.getText().toString().trim();
         String mRequestSource = spinnerRow.getSelectedItem().toString();
-
 
         // Create an object of database in write mode
         SQLiteDatabase db = mDbHelper.getWritableDatabase();
