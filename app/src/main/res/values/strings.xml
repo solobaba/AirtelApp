@@ -36,4 +36,7 @@
     <string name="check_balance_request">Check Balance Request</string>
     <string name="request_sent">Request Sent</string>
     <string name="contact_network">Contact Network</string>
+
+    <!--notification message-->
+    <string name="notification_msg">Be Mighty!, You received 2GB from Mighty Interactive Limited. Thank you!</string>
 </resources>

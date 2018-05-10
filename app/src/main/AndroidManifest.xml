@@ -20,6 +20,15 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".NotificationClass">
+            android:label="@string/app_name"
+            <intent-filter>
+                <action android:name="notification_filter" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity android:name=".CreateUser"/>
 
         <!--<service android:name=".USSDService"-->

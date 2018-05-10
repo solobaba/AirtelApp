@@ -1,11 +1,16 @@
 package com.example.mighty.airtelapp;
 
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -119,7 +124,7 @@ public class CreateUser extends AppCompatActivity {
     }
 
     //Insert data into the database
-    public void sendData(){
+    public void sendData() {
         //Read from input fields and use trim to eliminate leading or
         //trailing white space
         String recNum = recipientNumber.getText().toString().trim();
@@ -144,9 +149,8 @@ public class CreateUser extends AppCompatActivity {
         contentValues.put(DataEntry.COLUMN_TIME_DONE, dateFormat.format(date));
 
         long newRowId = db.insert(DataEntry.TABLE_NAME, null, contentValues);
-
-       // Log.v("MainActivity", "New row ID " + newRowId);
-       // Log.i("info", "newRow" + newRowId);
+        // Log.v("MainActivity", "New row ID " + newRowId);
+        // Log.i("info", "newRow" + newRowId);
 
         if (newRowId == -1) {
             // Log.i("Info :", "Error getting data..");
@@ -155,10 +159,27 @@ public class CreateUser extends AppCompatActivity {
             // Log.i("Info :", "Data Saved into database... ");
             Toast.makeText(this, "Data sent with row id: " + newRowId, Toast.LENGTH_SHORT).show();
         }
+
+        showNotification();
+
     }
 
+    public void showNotification() {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+        builder.setSmallIcon(R.drawable.message);
+        builder.setContentTitle("Mighty notifiction");
+        builder.setContentText("Mighty data notification ....");
+        Intent intent = new Intent(this, NotificationClass.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack(NotificationClass.class);
+        stackBuilder.addNextIntent(intent);
+        PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent(pendingIntent);
+        NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        nm.notify(0, builder.build());
+    }
 
-//    Check balance
+    //    Check balance
     public void checkBal() {
         String ussdCode = "*" + AIRTEL_CODE + Uri.encode("#");
         startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
