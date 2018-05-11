@@ -38,5 +38,5 @@
     <string name="contact_network">Contact Network</string>
 
     <!--notification message-->
-    <string name="notification_msg">Be Mighty!, You received 2GB from Mighty Interactive Limited. Thank you!</string>
+    <string name="notification_msg">Be Mighty!, You received 2GB from Mighty Interactive Limited. Kindly dial *461*2# to check your balance. Thank you!</string>
 </resources>
