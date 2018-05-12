@@ -1,11 +1,14 @@
 package com.example.mighty.airtelapp;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
@@ -16,6 +19,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -46,6 +50,10 @@ public class CreateUser extends AppCompatActivity {
     Button button;
 
     int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
+    String SENT = "SMS_SENT";
+    String DELIVERED = "SMS_DELIVERED";
+    PendingIntent sentPI, delilveredPI;
+    BroadcastReceiver smsSentReceiver, smsDeliveredReceiver;
 
     DataDbHelper mDbHelper;
     DateFormat dateFormat;
@@ -79,6 +87,9 @@ public class CreateUser extends AppCompatActivity {
         spinnerRow = findViewById(R.id.resource_spinner);
         button = findViewById(R.id.send_data_button);
 
+        sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
+        delilveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
+
         setupSpinner();
 
         spinnerRow.setOnTouchListener(mTouchListener);
@@ -91,6 +102,7 @@ public class CreateUser extends AppCompatActivity {
                 finish();
             }
         });
+
     }
 
     // Setup the dropdown spinner
@@ -168,7 +180,6 @@ public class CreateUser extends AppCompatActivity {
 
         showNotification();
         sendSMS();
-
     }
 
     private void sendSMS() {
@@ -177,22 +188,80 @@ public class CreateUser extends AppCompatActivity {
         String dataValue = dataBundleValue.getText().toString().trim();
         String dataCost = dataBundleCost.getText().toString().trim();
         String mRequestSource = spinnerRow.getSelectedItem().toString();
+        String message = recNum + dataName + dataValue + dataCost;
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
                 != PackageManager.PERMISSION_GRANTED){
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.SEND_SMS)) {
-            }else{ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},
+            }ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},
                         MY_PERMISSIONS_REQUEST_SEND_SMS);
-
-                }
-            }
+            } else{
+            SmsManager sms = SmsManager.getDefault();
+            sms.sendTextMessage(message, null, mRequestSource, sentPI, delilveredPI);
+        }
 
         }
-//        else{
-//            SmsManager sms = SmsManager.getDefault();
-//            sms.sendTextMessage(recNum, dataName, dataValue, null, null);
-//        }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        smsSentReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                switch (getResultCode()){
+                    case Activity.RESULT_OK:
+                        Toast.makeText(context, "SMS sent!", Toast.LENGTH_LONG).show();
+                        break;
+
+                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+                        Toast.makeText(context, "Generic failure!", Toast.LENGTH_LONG).show();
+                        break;
+
+                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+                        Toast.makeText(context, "No service!", Toast.LENGTH_LONG).show();
+                        break;
+
+                    case SmsManager.RESULT_ERROR_NULL_PDU:
+                        Toast.makeText(context, "Null PDU!", Toast.LENGTH_LONG).show();
+                        break;
+
+                        case SmsManager.RESULT_ERROR_RADIO_OFF:
+                            Toast.makeText(context, "Radio off!", Toast.LENGTH_LONG).show();
+                            break;
+                }
+            }
+        };
+
+        smsDeliveredReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+
+                switch (getResultCode()){
+                    case Activity.RESULT_OK:
+                        Toast.makeText(context, "SMS delivered!", Toast.LENGTH_LONG).show();
+                        break;
+
+                    case Activity.RESULT_CANCELED:
+                        Toast.makeText(context, "SMS not delivered!", Toast.LENGTH_LONG).show();
+                        break;
+                }
+            }
+        };
+
+        registerReceiver(smsSentReceiver, new IntentFilter(SENT));
+        registerReceiver(smsDeliveredReceiver, new IntentFilter(DELIVERED));
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        unregisterReceiver(smsDeliveredReceiver);
+        unregisterReceiver(smsSentReceiver);
+    }
 
     public void showNotification() {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
