@@ -2,9 +2,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mighty.airtelapp">
 
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.CALL_PHONE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
 
     <application
         android:allowBackup="true"
@@ -22,7 +27,7 @@
         </activity>
 
         <activity
-            android:name=".NotificationClass">
+            android:name=".SMSservice.NotificationClass">
             android:label="@string/app_name"
             <intent-filter>
                 <action android:name="notification_filter" />
@@ -31,15 +36,21 @@
         </activity>
 
         <activity android:name=".CreateUser"/>
+        <activity android:name=".data.RequestHistory"/>
 
-        <!--<service android:name=".USSDService"-->
-            <!--android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">-->
-            <!--<intent-filter>-->
-                <!--<action android:name="android.accessibilityservice.AccessibilityService" />-->
-            <!--</intent-filter>-->
-            <!--<meta-data android:name="android.accessibilityservice"-->
-                <!--android:resource="@xml/config_service" />-->
-        <!--</service>-->
+        <provider
+            android:authorities="com.example.mighty.airtelapp"
+            android:name=".data.DataProvider"
+            android:exported="false"/>
+
+        <service android:name=".USSDService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data android:name="android.accessibilityservice"
+                android:resource="@xml/config_service" />
+        </service>
 
         <service android:name=".QueryService"
             android:exported="false"/>

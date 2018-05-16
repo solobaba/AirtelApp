@@ -1,16 +1,17 @@
 package com.example.mighty.airtelapp;
 
 import android.Manifest;
-import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -21,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -32,8 +34,11 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.mighty.airtelapp.EmailSent.EmailMessage;
+import com.example.mighty.airtelapp.SMSservice.NotificationClass;
 import com.example.mighty.airtelapp.data.DataContract.DataEntry;
 import com.example.mighty.airtelapp.data.DataDbHelper;
+import com.example.mighty.airtelapp.data.RequestHistory;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -48,6 +53,19 @@ public class CreateUser extends AppCompatActivity {
     EditText recipientNumber, dataBundleName, dataBundleValue, dataBundleCost;
     Spinner spinnerRow;
     Button button;
+
+    //Airtel data codes
+    public static final String ONE_FIVE_GIG = "1.5GB";
+    public static final String THREE_FIVE_GIG = "3.5GB";
+    public static final String FIVE_GIG = "5GB";
+    public static final String CODE_ONE_FIVE_GIG = "*141**5*2*1*5*1";
+    public static final String CODE_THREE_FIVE_GIG = "*141**5*2*1*4*1";
+    public static final String CODE_FIVE_GIG = "*141**5*2*1*3*1";
+
+    String recNum;
+    String dataName;
+    String dataValue;
+    String dataCost;
 
     int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
     String SENT = "SMS_SENT";
@@ -87,6 +105,12 @@ public class CreateUser extends AppCompatActivity {
         spinnerRow = findViewById(R.id.resource_spinner);
         button = findViewById(R.id.send_data_button);
 
+        recNum = recipientNumber.getText().toString().trim();
+        dataName = dataBundleName.getText().toString().trim();
+        dataValue = dataBundleValue.getText().toString().trim();
+        dataCost = dataBundleCost.getText().toString().trim();
+        mRequestSource = spinnerRow.getSelectedItem().toString();
+
         sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
         delilveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
 
@@ -102,7 +126,6 @@ public class CreateUser extends AppCompatActivity {
                 finish();
             }
         });
-
     }
 
     // Setup the dropdown spinner
@@ -166,101 +189,152 @@ public class CreateUser extends AppCompatActivity {
         contentValues.put(DataEntry.COLUMN_STATUS, "Data saved successfully");
         contentValues.put(DataEntry.COLUMN_TIME_DONE, dateFormat.format(date));
 
-        long newRowId = db.insert(DataEntry.TABLE_NAME, null, contentValues);
-        // Log.v("MainActivity", "New row ID " + newRowId);
-        // Log.i("info", "newRow" + newRowId);
-
-        if (newRowId == -1) {
-            // Log.i("Info :", "Error getting data..");
-            Toast.makeText(this, "Error getting data.. ", Toast.LENGTH_SHORT).show();
-        } else {
-            // Log.i("Info :", "Data Saved into database... ");
-            Toast.makeText(this, "Data sent with row id: " + newRowId, Toast.LENGTH_SHORT).show();
+        Uri newRowId = getContentResolver().insert(DataEntry.CONTENT_URI, contentValues);
+//        Uri uri = getContentResolver().insert(DataEntry.CONTENT_URI, contentValues);
+        if (newRowId == null) {
+            Log.i ( "Info:", "Error getting data.." );
+//            Toast.makeText(this, "Error getting data.. ", Toast.LENGTH_SHORT).show();
+        }else {
+            Log.i("info:", "Data saved into database...");
+//            Toast.makeText(this, "Data sent with row id: " + newRowId, Toast.LENGTH_SHORT).show();
         }
 
+//        long newRowId = db.insert(DataEntry.TABLE_NAME, null, contentValues);
+//        // Log.v("MainActivity", "New row ID " + newRowId);
+//        // Log.i("info", "newRow" + newRowId);
+//
+//        if (newRowId == -1) {
+//            // Log.i("Info :", "Error getting data..");
+//            Toast.makeText(this, "Error getting data.. ", Toast.LENGTH_SHORT).show();
+//        } else {
+//            // Log.i("Info :", "Data Saved into database... ");
+//            Toast.makeText(this, "Data sent with row id: " + newRowId, Toast.LENGTH_SHORT).show();
+//        }
+
+//        airtelData();
+        String message = "Be Mighty!, You received " + dataValue + " " + dataName + " from Mighty Interactive Limited. " +
+                "Kindly dial *461*2# to check your balance. Thank you!";
+        String phoneNumber = recNum;
+        sendSMS(phoneNumber, message);
+        emailMessage();
         showNotification();
-        sendSMS();
+//        dialogBox();
     }
 
-    private void sendSMS() {
-        String recNum = recipientNumber.getText().toString().trim();
-        String dataName = dataBundleName.getText().toString().trim();
-        String dataValue = dataBundleValue.getText().toString().trim();
-        String dataCost = dataBundleCost.getText().toString().trim();
-        String mRequestSource = spinnerRow.getSelectedItem().toString();
-        String message = recNum + dataName + dataValue + dataCost;
-
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED){
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.SEND_SMS)) {
-            }ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS},
-                        MY_PERMISSIONS_REQUEST_SEND_SMS);
-            } else{
+    private void sendSMS(String phoneNumber, String message) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.SEND_SMS)) {
+            }
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, MY_PERMISSIONS_REQUEST_SEND_SMS);
+        } else {
             SmsManager sms = SmsManager.getDefault();
-            sms.sendTextMessage(message, null, mRequestSource, sentPI, delilveredPI);
+            sms.sendTextMessage(phoneNumber, null, message, sentPI, delilveredPI);
         }
 
-        }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        smsSentReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                switch (getResultCode()){
-                    case Activity.RESULT_OK:
-                        Toast.makeText(context, "SMS sent!", Toast.LENGTH_LONG).show();
-                        break;
-
-                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
-                        Toast.makeText(context, "Generic failure!", Toast.LENGTH_LONG).show();
-                        break;
-
-                    case SmsManager.RESULT_ERROR_NO_SERVICE:
-                        Toast.makeText(context, "No service!", Toast.LENGTH_LONG).show();
-                        break;
-
-                    case SmsManager.RESULT_ERROR_NULL_PDU:
-                        Toast.makeText(context, "Null PDU!", Toast.LENGTH_LONG).show();
-                        break;
-
-                        case SmsManager.RESULT_ERROR_RADIO_OFF:
-                            Toast.makeText(context, "Radio off!", Toast.LENGTH_LONG).show();
-                            break;
-                }
-            }
-        };
-
-        smsDeliveredReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-
-                switch (getResultCode()){
-                    case Activity.RESULT_OK:
-                        Toast.makeText(context, "SMS delivered!", Toast.LENGTH_LONG).show();
-                        break;
-
-                    case Activity.RESULT_CANCELED:
-                        Toast.makeText(context, "SMS not delivered!", Toast.LENGTH_LONG).show();
-                        break;
-                }
-            }
-        };
-
-        registerReceiver(smsSentReceiver, new IntentFilter(SENT));
-        registerReceiver(smsDeliveredReceiver, new IntentFilter(DELIVERED));
+        MediaPlayer mySound = MediaPlayer.create(this, R.raw.notification);
+        mySound.start();
     }
 
-    @Override
-    protected void onPause() {
-        super.onPause();
+    private void emailMessage(){
+        String email = "solomon.oduniyi@gmail.com";
+        String subject = "Mighty Data";
+        String message = "Be Mighty!, You received " + dataValue + " " + dataName + " from Mighty Interactive Limited. " +
+                "Kindly dial *461*2# to check your balance. Thank you!";
 
-        unregisterReceiver(smsDeliveredReceiver);
-        unregisterReceiver(smsSentReceiver);
+        try {
+            EmailMessage emailMsg = new EmailMessage(this, email, subject, message);
+            emailMsg.execute();
+        } catch (Exception e){
+            Log.e("SendMail", e.getMessage(), e);
+        }
+    }
+
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//
+//        smsSentReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//
+//                switch (getResultCode()){
+//                    case Activity.RESULT_OK:
+//                        Toast.makeText(context, "SMS sent!", Toast.LENGTH_LONG).show();
+//                        break;
+//
+//                    case SmsManager.RESULT_ERROR_GENERIC_FAILURE:
+//                        Toast.makeText(context, "Generic failure!", Toast.LENGTH_LONG).show();
+//                        break;
+//
+//                    case SmsManager.RESULT_ERROR_NO_SERVICE:
+//                        Toast.makeText(context, "No service!", Toast.LENGTH_LONG).show();
+//                        break;
+//
+//                    case SmsManager.RESULT_ERROR_NULL_PDU:
+//                        Toast.makeText(context, "Null PDU!", Toast.LENGTH_LONG).show();
+//                        break;
+//
+//                        case SmsManager.RESULT_ERROR_RADIO_OFF:
+//                            Toast.makeText(context, "Radio off!", Toast.LENGTH_LONG).show();
+//                            break;
+//                }
+//            }
+//        };
+//
+//        smsDeliveredReceiver = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//
+//                switch (getResultCode()){
+//                    case Activity.RESULT_OK:
+//                        Toast.makeText(context, "SMS delivered!", Toast.LENGTH_LONG).show();
+//                        break;
+//
+//                    case Activity.RESULT_CANCELED:
+//                        Toast.makeText(context, "SMS not delivered!", Toast.LENGTH_LONG).show();
+//                        break;
+//                }
+//            }
+//        };
+//        registerReceiver(smsSentReceiver, new IntentFilter(SENT));
+//        registerReceiver(smsDeliveredReceiver, new IntentFilter(DELIVERED));
+//    }
+
+//    @Override
+//    protected void onPause() {
+//        super.onPause();
+//        unregisterReceiver(smsDeliveredReceiver);
+//        unregisterReceiver(smsSentReceiver);
+//    }
+
+    private void airtelData(){
+        if (dataValue.equals(ONE_FIVE_GIG)){
+            String ussdCode = CODE_ONE_FIVE_GIG + recNum + Uri.encode("#");
+            startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
+        }else if (dataValue.equals(THREE_FIVE_GIG)){
+            String ussdCode = CODE_THREE_FIVE_GIG + recNum + Uri.encode("#");
+            startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
+        }else {
+            String ussdCode = CODE_ONE_FIVE_GIG + recNum + Uri.encode("#");
+            startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
+        }
+    }
+
+    private void dialogBox(){
+        AlertDialog.Builder alertDialogBox = new AlertDialog.Builder(this);
+        //Set dialog message
+        alertDialogBox.setMessage("Be Mighty!, You received 1.5GB from Mighty Interactive Limited. " +
+                "Kindly dial *461*2# to check your balance. Thank you!")
+                .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        //Close dialog box
+//                        dialog.cancel();
+                    }
+                });
+        //Create alert dialog
+        AlertDialog alertDialog = alertDialogBox.create();
+        alertDialog.show();
     }
 
     public void showNotification() {
@@ -300,7 +374,8 @@ public class CreateUser extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.log_data:
-//                Toast.makeText(this, "Checking log", Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(this, RequestHistory.class));
+                Toast.makeText(this, "Checking log", Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.check_balance_request:

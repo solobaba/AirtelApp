@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">AirtelApp</string>
-    <string name="accessibility_description">This service records pop ups sent by your mobile operator, and saves them in USSDService App</string>
+    <string name="accessibility_description">This service records pop ups sent by your mobile operator,
+        and saves them in USSDService App</string>
     <string name="airtime_balance">Check Balance</string>
 
     <!--check airtime balance buttons-->
@@ -38,5 +39,6 @@
     <string name="contact_network">Contact Network</string>
 
     <!--notification message-->
-    <string name="notification_msg">Be Mighty!, You received 2GB from Mighty Interactive Limited. Kindly dial *461*2# to check your balance. Thank you!</string>
+    <string name="notification_msg">Be Mighty!, You received 1.5GB from Mighty Interactive Limited.
+        Kindly dial *461*2# to check your balance. Thank you!</string>
 </resources>

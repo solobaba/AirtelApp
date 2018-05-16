@@ -30,7 +30,6 @@ public class MainActivity extends AppCompatActivity {
 //        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 //        recyclerView.setLayoutManager(layoutManager);
 
-
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -43,7 +42,6 @@ public class MainActivity extends AppCompatActivity {
         //To access our database, we instantiate our subclass of SQLiteOpener
         //and pass the context, which is the current activity
         mDbHelper = new DataDbHelper(this);
-
     }
 
     @Override

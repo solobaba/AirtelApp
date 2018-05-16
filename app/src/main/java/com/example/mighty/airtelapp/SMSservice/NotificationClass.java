@@ -1,7 +1,9 @@
-package com.example.mighty.airtelapp;
+package com.example.mighty.airtelapp.SMSservice;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+
+import com.example.mighty.airtelapp.R;
 
 public class NotificationClass extends AppCompatActivity {
 

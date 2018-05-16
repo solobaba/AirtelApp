@@ -1,15 +1,22 @@
 package com.example.mighty.airtelapp.data;
 
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 public class DataContract {
+
+    public static final String CONTENT_AUTHORITY = "com.example.mighty.airtelapp";
+    public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
+    public static final String PATH_LOG = "log_path";
 
     private DataContract(){
     }
 
     public static final class DataEntry implements BaseColumns {
 
-        // Table and column names as constraints
+        public static final Uri CONTENT_URI = Uri.withAppendedPath(BASE_CONTENT_URI, PATH_LOG);
+
+        // Table and column names
         public final static String TABLE_NAME = "airdat";
 
         public final static String COLUMN_NAME_ID = BaseColumns._ID;
@@ -30,5 +37,4 @@ public class DataContract {
         public static final String REQUEST_SOURCE_WEB = "Web";
         public static final String REQUEST_SOURCE_API = "API";
     }
-
 }

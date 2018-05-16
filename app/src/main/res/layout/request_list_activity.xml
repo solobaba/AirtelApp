@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="10dp">
+
+    <TextView
+        android:id="@+id/recipient_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/recipient_number"/>
+
+    <TextView
+        android:id="@+id/data_bundle_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/data_bundle_name"/>
+
+    <TextView
+        android:id="@+id/data_bundle_value"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/data_bundle_value"/>
+
+    <TextView
+        android:id="@+id/data_bundle_cost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/data_bundle_cost"/>
+
+    <TextView
+        android:id="@+id/resource_spinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/request_source"/>
+
+    <TextView
+        android:id="@+id/time_received"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/time_received"/>
+
+
+    <TextView
+        android:id="@+id/time_done"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/time_done"/>
+
+</LinearLayout>
