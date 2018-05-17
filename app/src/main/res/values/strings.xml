@@ -20,8 +20,10 @@
     <string name="status">Status</string>
     <string name="time_done">Time Done</string>
 
-    <!--Spinner details… -->
-    <!--<string name="unknown">Unknown</string>-->
+    <!-- Units for weight of the pet (kilograms) [CHAR LIMIT=5] -->
+    <string name="unit_data_cost">NG</string>
+
+    <!--Resource Spinner details… -->
     <string name="spinnertype1">Airtime</string>
     <string name="spinnertype2">Cash</string>
     <string name="spinnertype3">Agent</string>
@@ -29,16 +31,27 @@
     <string name="spinnertype5">Web</string>
     <string name="spinnertype6">API</string>
 
+    <!--Bundle value details… -->
+    <string name="bundlevalue1">1.5GB</string>
+    <string name="bundlevalue2">3.5GB</string>
+    <string name="bundlevalue3">5GB</string>
+
     <!--Buttons details… -->
     <string name="send_data_button">Send Data</string>
 
     <!--menu details-->
-    <string name="log_data">Log Data</string>
-    <string name="check_balance_request">Check Balance Request</string>
     <string name="request_sent">Request Sent</string>
+    <string name="check_balance_request">Check Balance Request</string>
+    <string name="log_data">Log</string>
     <string name="contact_network">Contact Network</string>
 
     <!--notification message-->
     <string name="notification_msg">Be Mighty!, You received 1.5GB from Mighty Interactive Limited.
         Kindly dial *461*2# to check your balance. Thank you!</string>
+
+    <!-- Label -->
+    <string name="overview">Overview</string>
+    <string name="data_value">Bundle Value</string>
+    <string name="data_cost">Bundle Cost</string>
+
 </resources>

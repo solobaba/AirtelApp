@@ -7,7 +7,7 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.ListView;
+import android.widget.GridView;
 
 import com.example.mighty.airtelapp.R;
 import com.example.mighty.airtelapp.data.DataContract.DataEntry;
@@ -22,7 +22,7 @@ public class RequestHistory extends AppCompatActivity implements LoaderManager.L
         super.onCreate(savedInstanceState);
         setContentView(R.layout.request_activity);
 
-        ListView listView = (ListView) findViewById(R.id.request_list);
+        GridView listView = (GridView) findViewById(R.id.request_list);
         requestCursorAdapter = new RequestCursorAdapter(this, null);
         listView.setAdapter(requestCursorAdapter);
         getLoaderManager().initLoader(REQUEST_LOADER, null, this);

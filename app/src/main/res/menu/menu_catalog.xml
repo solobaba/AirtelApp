@@ -5,6 +5,11 @@
     tools:context=".CreateUser">
 
     <item
+        android:id="@+id/request_sent"
+        android:title="@string/request_sent"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/log_data"
         android:title="@string/log_data"
         app:showAsAction="never" />
@@ -12,11 +17,6 @@
     <item
         android:id="@+id/check_balance_request"
         android:title="@string/check_balance_request"
-        app:showAsAction="never" />
-
-    <item
-        android:id="@+id/request_sent"
-        android:title="@string/request_sent"
         app:showAsAction="never" />
 
     <item

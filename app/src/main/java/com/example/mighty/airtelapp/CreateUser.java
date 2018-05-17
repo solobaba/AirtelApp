@@ -50,8 +50,8 @@ public class CreateUser extends AppCompatActivity {
     public static final String AIRTEL_CODE = "123";
     public static final String CONTACT_NETWORK = "1";
 
-    EditText recipientNumber, dataBundleName, dataBundleValue, dataBundleCost;
-    Spinner spinnerRow;
+    EditText recipientNumber, dataBundleName, dataBundleCost;
+    Spinner spinnerRow, spinnerValueRow;
     Button button;
 
     //Airtel data codes
@@ -64,7 +64,6 @@ public class CreateUser extends AppCompatActivity {
 
     String recNum;
     String dataName;
-    String dataValue;
     String dataCost;
 
     int MY_PERMISSIONS_REQUEST_SEND_SMS = 1;
@@ -78,6 +77,7 @@ public class CreateUser extends AppCompatActivity {
     Date date;
 
     private String mRequestSource = DataEntry.REQUEST_SOURCE_UNKNOWN;
+    public String mDataBundleValue = DataEntry.REQUEST_VALUE_UNKNOWN;
     private boolean mRequestSourceHasChanged = false;
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
@@ -100,22 +100,24 @@ public class CreateUser extends AppCompatActivity {
 
         recipientNumber = findViewById(R.id.recipient_number);
         dataBundleName = findViewById(R.id.data_bundle_name);
-        dataBundleValue = findViewById(R.id.data_bundle_value);
+        spinnerValueRow = findViewById(R.id.data_bundle_value);
         dataBundleCost = findViewById(R.id.data_bundle_cost);
         spinnerRow = findViewById(R.id.resource_spinner);
         button = findViewById(R.id.send_data_button);
 
         recNum = recipientNumber.getText().toString().trim();
         dataName = dataBundleName.getText().toString().trim();
-        dataValue = dataBundleValue.getText().toString().trim();
+//        mDataBundleValue = spinnerValueRow.getSelectedItem().toString();
         dataCost = dataBundleCost.getText().toString().trim();
-        mRequestSource = spinnerRow.getSelectedItem().toString();
+//        mRequestSource = spinnerRow.getSelectedItem().toString();
 
         sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
         delilveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
 
         setupSpinner();
+        setupDataValue();
 
+        spinnerValueRow.setOnTouchListener(mTouchListener);
         spinnerRow.setOnTouchListener(mTouchListener);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -128,7 +130,36 @@ public class CreateUser extends AppCompatActivity {
         });
     }
 
-    // Setup the dropdown spinner
+    //Setup the request source dropdown spinner
+    private void setupDataValue() {
+        ArrayAdapter dataBundleValue = ArrayAdapter.createFromResource(this,
+                R.array.array_data_bundle_value, android.R.layout.simple_spinner_item);
+        dataBundleValue.setDropDownViewResource(android.R.layout.simple_dropdown_item_1line);
+        spinnerValueRow.setAdapter(dataBundleValue);
+        spinnerValueRow.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener () {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String selection = (String) parent.getItemAtPosition(position);
+                if(!TextUtils.isEmpty(selection)){
+                    if (selection.equals(getString(R.string.bundlevalue1))){
+                        mDataBundleValue = DataEntry.ONE_FIVE_GB;
+                    }else if (selection.equals(getString(R.string.bundlevalue2))){
+                        mDataBundleValue = DataEntry.THREE_FIVE_GB;
+                    }else if (selection.equals(getString(R.string.bundlevalue3))){
+                        mDataBundleValue = DataEntry.FIVE_GB;
+                    }else {
+                        mDataBundleValue = DataEntry.REQUEST_VALUE_UNKNOWN;
+                    }
+                }
+            }
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                mDataBundleValue = DataEntry.REQUEST_VALUE_UNKNOWN;
+            }
+        });
+    }
+
+    //Setup the request source dropdown spinner
     private void setupSpinner(){
         ArrayAdapter requestSourceAdapter = ArrayAdapter.createFromResource(this,
                 R.array.array_request_source, android.R.layout.simple_spinner_item);
@@ -170,7 +201,7 @@ public class CreateUser extends AppCompatActivity {
         //trailing white space
         String recNum = recipientNumber.getText().toString().trim();
         String dataName = dataBundleName.getText().toString().trim();
-        String dataValue = dataBundleValue.getText().toString().trim();
+        String mDataBundleValue = spinnerValueRow.getSelectedItem().toString();
         String dataCost = dataBundleCost.getText().toString().trim();
         String mRequestSource = spinnerRow.getSelectedItem().toString();
 
@@ -182,7 +213,7 @@ public class CreateUser extends AppCompatActivity {
         ContentValues contentValues = new ContentValues();
         contentValues.put(DataEntry.COLUMN_RECIPIENT_NUMBER, recNum);
         contentValues.put(DataEntry.COLUMN_DATA_BUNDLE_NAME, dataName);
-        contentValues.put(DataEntry.COLUMN_DATA_BUNDLE_VALUE, dataValue);
+        contentValues.put(DataEntry.COLUMN_DATA_BUNDLE_VALUE, mDataBundleValue);
         contentValues.put(DataEntry.COLUMN_DATA_BUNDLE_COST, dataCost);
         contentValues.put(DataEntry.COLUMN_TIME_RECEIVED, dateFormat.format(date));
         contentValues.put(DataEntry.COLUMN_SPINNER_ROW, mRequestSource);
@@ -212,10 +243,10 @@ public class CreateUser extends AppCompatActivity {
 //        }
 
 //        airtelData();
-        String message = "Be Mighty!, You received " + dataValue + " " + dataName + " from Mighty Interactive Limited. " +
-                "Kindly dial *461*2# to check your balance. Thank you!";
-        String phoneNumber = recNum;
-        sendSMS(phoneNumber, message);
+//        String message = "Be Mighty!, You received " + dataValue + " " + dataName + " from Mighty Interactive Limited. " +
+//                "Kindly dial *461*2# to check your balance. Thank you!";
+//        String phoneNumber = recNum;
+//        sendSMS(phoneNumber, message);
         emailMessage();
         showNotification();
 //        dialogBox();
@@ -238,7 +269,7 @@ public class CreateUser extends AppCompatActivity {
     private void emailMessage(){
         String email = "solomon.oduniyi@gmail.com";
         String subject = "Mighty Data";
-        String message = "Be Mighty!, You received " + dataValue + " " + dataName + " from Mighty Interactive Limited. " +
+        String message = "Be Mighty!, You received " + mDataBundleValue + " " + dataName + " from Mighty Interactive Limited. " +
                 "Kindly dial *461*2# to check your balance. Thank you!";
 
         try {
@@ -308,10 +339,10 @@ public class CreateUser extends AppCompatActivity {
 //    }
 
     private void airtelData(){
-        if (dataValue.equals(ONE_FIVE_GIG)){
+        if (mDataBundleValue.equals(ONE_FIVE_GIG)){
             String ussdCode = CODE_ONE_FIVE_GIG + recNum + Uri.encode("#");
             startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
-        }else if (dataValue.equals(THREE_FIVE_GIG)){
+        }else if (mDataBundleValue.equals(THREE_FIVE_GIG)){
             String ussdCode = CODE_THREE_FIVE_GIG + recNum + Uri.encode("#");
             startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
         }else {
@@ -342,6 +373,7 @@ public class CreateUser extends AppCompatActivity {
         builder.setSmallIcon(R.drawable.message);
         builder.setContentTitle("Mighty notifiction");
         builder.setContentText("Mighty data notification ....");
+        builder.setAutoCancel(true);
         Intent intent = new Intent(this, NotificationClass.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(NotificationClass.class);
@@ -356,6 +388,7 @@ public class CreateUser extends AppCompatActivity {
     public void checkBal() {
         String ussdCode = "*" + AIRTEL_CODE + Uri.encode("#");
         startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
+        dateFormat.format(date);
     }
 
     //Contact Network
@@ -373,9 +406,9 @@ public class CreateUser extends AppCompatActivity {
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
-            case R.id.log_data:
+            case R.id.request_sent:
                 startActivity(new Intent(this, RequestHistory.class));
-                Toast.makeText(this, "Checking log", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Requesting history", Toast.LENGTH_SHORT).show();
                 return true;
 
             case R.id.check_balance_request:

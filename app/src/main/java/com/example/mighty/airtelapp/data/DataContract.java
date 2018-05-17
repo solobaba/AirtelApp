@@ -36,5 +36,11 @@ public class DataContract {
         public static final String REQUEST_SOURCE_SALES_REP = "Sales Rep";
         public static final String REQUEST_SOURCE_WEB = "Web";
         public static final String REQUEST_SOURCE_API = "API";
+
+
+        public static final String REQUEST_VALUE_UNKNOWN = "Unknown";
+        public static final String ONE_FIVE_GB = "1.5GB";
+        public static final String THREE_FIVE_GB = "3.5GB";
+        public static final String FIVE_GB = "5GB";
     }
 }

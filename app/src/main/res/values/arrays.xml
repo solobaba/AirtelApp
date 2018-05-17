@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!--Options that will displayed in the resource drop-down Spinner -->
     <string-array name="array_request_source">
-        <!--<item>@string/unknown</item>-->
         <item>@string/spinnertype1</item>
         <item>@string/spinnertype2</item>
         <item>@string/spinnertype3</item>
@@ -9,6 +10,15 @@
         <item>@string/spinnertype5</item>
         <item>@string/spinnertype6</item>
     </string-array>
+
+
+    <!-- Options that will displayed in the bundle value drop-down Spinner -->
+    <string-array name="array_data_bundle_value">
+        <item>@string/bundlevalue1</item>
+        <item>@string/bundlevalue2</item>
+        <item>@string/bundlevalue3</item>
+    </string-array>
+
 
     <string-array name="telcos">
         <item name="telco_airtel">AIRTEL</item>
