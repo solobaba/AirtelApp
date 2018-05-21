@@ -38,6 +38,7 @@
 
     <!--Buttons details… -->
     <string name="send_data_button">Send Data</string>
+    <string name="data_balance">Data Balance</string>
 
     <!--menu details-->
     <string name="request_sent">Request Sent</string>

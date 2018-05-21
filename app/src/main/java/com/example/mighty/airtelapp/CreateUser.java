@@ -9,6 +9,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
@@ -32,10 +34,12 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mighty.airtelapp.EmailSent.EmailMessage;
-import com.example.mighty.airtelapp.SMSservice.NotificationClass;
+import com.example.mighty.airtelapp.Sercvice.EmailMessage;
+import com.example.mighty.airtelapp.Sercvice.NotificationClass;
+import com.example.mighty.airtelapp.Sercvice.QueryService;
 import com.example.mighty.airtelapp.data.DataContract.DataEntry;
 import com.example.mighty.airtelapp.data.DataDbHelper;
 import com.example.mighty.airtelapp.data.RequestHistory;
@@ -43,6 +47,8 @@ import com.example.mighty.airtelapp.data.RequestHistory;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 
 public class CreateUser extends AppCompatActivity {
@@ -52,7 +58,7 @@ public class CreateUser extends AppCompatActivity {
 
     EditText recipientNumber, dataBundleName, dataBundleCost;
     Spinner spinnerRow, spinnerValueRow;
-    Button button;
+    Button button, dataButton;
 
     //Airtel data codes
     public static final String ONE_FIVE_GIG = "1.5GB";
@@ -76,9 +82,17 @@ public class CreateUser extends AppCompatActivity {
     DateFormat dateFormat;
     Date date;
 
+    private Receiver receiver;
+    private TextView dataBalance;
+    String mResult, currentTime, CURRENT_BALANCE, CURRENT_TIME;
+
     private String mRequestSource = DataEntry.REQUEST_SOURCE_UNKNOWN;
     public String mDataBundleValue = DataEntry.REQUEST_VALUE_UNKNOWN;
     private boolean mRequestSourceHasChanged = false;
+
+//    public static final String NOTIFY_ONE_FIVE = "com.example.mighty.airtelapp.oneFive";
+//    public static final String NOTIFY_THREE_FIVE = "com.example.mighty.airtelapp.threeFive";
+//    public static final String NOTIFY_FIVE = "com.example.mighty.airtelapp.five";
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -93,6 +107,11 @@ public class CreateUser extends AppCompatActivity {
         setContentView(R.layout.create_user);
         Intent intent = new Intent(this, QueryService.class);
         startService(intent);
+
+        IntentFilter filter = new IntentFilter(Receiver.ACTION_RESPONSE);
+        filter.addCategory(Intent.CATEGORY_DEFAULT);
+        receiver = new Receiver();
+        registerReceiver(receiver, filter);
 
         mDbHelper = new DataDbHelper(this);
         dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -114,6 +133,15 @@ public class CreateUser extends AppCompatActivity {
         sentPI = PendingIntent.getBroadcast(this, 0, new Intent(SENT), 0);
         delilveredPI = PendingIntent.getBroadcast(this, 0, new Intent(DELIVERED), 0);
 
+        //Data balance
+        dataBalance = (TextView)findViewById(R.id.balance_airtime);
+        dataButton = findViewById(R.id.data_balance);
+
+        //Save data balance received from onReceiver
+        SharedPreferences sharedPreferences = getSharedPreferences("com.example.mighty.airtelapp", Context.MODE_PRIVATE);
+        CURRENT_BALANCE = sharedPreferences.getString("dataBalance", "");
+        dataBalance.setText(CURRENT_BALANCE);
+
         setupSpinner();
         setupDataValue();
 
@@ -126,6 +154,14 @@ public class CreateUser extends AppCompatActivity {
                 sendData();
                 //Exit activity
                 finish();
+            }
+        });
+
+        //Data balance button method
+        dataButton.setOnClickListener ( new View.OnClickListener () {
+            @Override
+            public void onClick(View v) {
+                checkBal();
             }
         });
     }
@@ -224,10 +260,10 @@ public class CreateUser extends AppCompatActivity {
 //        Uri uri = getContentResolver().insert(DataEntry.CONTENT_URI, contentValues);
         if (newRowId == null) {
             Log.i ( "Info:", "Error getting data.." );
-//            Toast.makeText(this, "Error getting data.. ", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error getting data.. ", Toast.LENGTH_SHORT).show();
         }else {
             Log.i("info:", "Data saved into database...");
-//            Toast.makeText(this, "Data sent with row id: " + newRowId, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Data sent successfully", Toast.LENGTH_SHORT).show();
         }
 
 //        long newRowId = db.insert(DataEntry.TABLE_NAME, null, contentValues);
@@ -243,13 +279,13 @@ public class CreateUser extends AppCompatActivity {
 //        }
 
 //        airtelData();
-//        String message = "Be Mighty!, You received " + dataValue + " " + dataName + " from Mighty Interactive Limited. " +
-//                "Kindly dial *461*2# to check your balance. Thank you!";
-//        String phoneNumber = recNum;
-//        sendSMS(phoneNumber, message);
+        String message = "Be Mighty!, You received " + mDataBundleValue + " " + dataName + " from Mighty Interactive Limited. " +
+                "Kindly dial *461*2# to check your balance. Thank you!";
+        String phoneNumber = recNum;
+        sendSMS(phoneNumber, message);
         emailMessage();
         showNotification();
-//        dialogBox();
+        dialogBox();
     }
 
     private void sendSMS(String phoneNumber, String message) {
@@ -261,13 +297,12 @@ public class CreateUser extends AppCompatActivity {
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(phoneNumber, null, message, sentPI, delilveredPI);
         }
-
-        MediaPlayer mySound = MediaPlayer.create(this, R.raw.notification);
-        mySound.start();
+//        MediaPlayer mySound = MediaPlayer.create(this, R.raw.notification);
+//        mySound.start();
     }
 
     private void emailMessage(){
-        String email = "solomon.oduniyi@gmail.com";
+        String email = "interactivemighty@gmail.com";
         String subject = "Mighty Data";
         String message = "Be Mighty!, You received " + mDataBundleValue + " " + dataName + " from Mighty Interactive Limited. " +
                 "Kindly dial *461*2# to check your balance. Thank you!";
@@ -354,16 +389,15 @@ public class CreateUser extends AppCompatActivity {
     private void dialogBox(){
         AlertDialog.Builder alertDialogBox = new AlertDialog.Builder(this);
         //Set dialog message
-        alertDialogBox.setMessage("Be Mighty!, You received 1.5GB from Mighty Interactive Limited. " +
-                "Kindly dial *461*2# to check your balance. Thank you!")
+        alertDialogBox.setMessage("Data sent successfully")
                 .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         //Close dialog box
-//                        dialog.cancel();
+                        dialog.cancel();
                     }
                 });
-        //Create alert dialog
+        //Create and display the alert dialog
         AlertDialog alertDialog = alertDialogBox.create();
         alertDialog.show();
     }
@@ -374,7 +408,7 @@ public class CreateUser extends AppCompatActivity {
         builder.setContentTitle("Mighty notifiction");
         builder.setContentText("Mighty data notification ....");
         builder.setAutoCancel(true);
-        Intent intent = new Intent(this, NotificationClass.class);
+        Intent intent = new Intent(this, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
         stackBuilder.addParentStack(NotificationClass.class);
         stackBuilder.addNextIntent(intent);
@@ -382,13 +416,47 @@ public class CreateUser extends AppCompatActivity {
         builder.setContentIntent(pendingIntent);
         NotificationManager nm = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(0, builder.build());
+
+        MediaPlayer mySound = MediaPlayer.create(this, R.raw.notification);
+        mySound.start();
+    }
+
+    //Accessibility service response
+    public class Receiver extends BroadcastReceiver{
+        public static final String ACTION_RESPONSE = "com.example.mighty.airtelapp.android.intent.action.CALL";
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if(intent.getAction().equals(CreateUser.Receiver.ACTION_RESPONSE)){
+                mResult = intent.getStringExtra("result");
+                currentTime = intent.getStringExtra("current time");
+
+                String balance = mResult;
+                Pattern pattern = Pattern.compile(":(.*?)G");
+                Matcher match = pattern.matcher(balance);
+
+                if(match.find()){
+                    String mDataBalance = "Your balance is " + match.group(1);
+
+                    //Saved broadcast response
+                    SharedPreferences sharedPreferences = getSharedPreferences
+                            ("com.example.mighty.airtelapp", Context.MODE_PRIVATE);
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.putString("airtimeBalnace", mDataBalance);
+                    editor.putString("currentTime", currentTime);
+                    editor.apply();
+                    dataBalance.setText(mDataBalance);
+                } else {
+                    dataBalance.setText(mResult);
+                }
+            }
+        }
     }
 
     //    Check balance
     public void checkBal() {
         String ussdCode = "*" + AIRTEL_CODE + Uri.encode("#");
         startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
-        dateFormat.format(date);
     }
 
     //Contact Network
@@ -424,4 +492,3 @@ public class CreateUser extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
-

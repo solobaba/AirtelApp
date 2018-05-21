@@ -2,7 +2,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.mighty.airtelapp">
 
-
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -27,7 +26,7 @@
         </activity>
 
         <activity
-            android:name=".SMSservice.NotificationClass">
+            android:name=".Sercvice.NotificationClass">
             android:label="@string/app_name"
             <intent-filter>
                 <action android:name="notification_filter" />
@@ -52,9 +51,8 @@
                 android:resource="@xml/config_service" />
         </service>
 
-        <service android:name=".QueryService"
+        <service android:name=".Sercvice.QueryService"
             android:exported="false"/>
-
     </application>
 
 </manifest>
