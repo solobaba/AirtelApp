@@ -30,7 +30,7 @@ public class RequestHistory extends AppCompatActivity implements LoaderManager.L
 
         mtoolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mtoolbar);
-        mtoolbar.setTitle("AirtelApp");
+        mtoolbar.setTitle("Request History");
         mtoolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         mtoolbar.setOnClickListener (new View.OnClickListener() {
             @Override

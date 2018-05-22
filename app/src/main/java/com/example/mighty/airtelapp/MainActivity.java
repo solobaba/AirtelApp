@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 
 import com.example.mighty.airtelapp.data.DataDbHelper;
@@ -12,6 +13,8 @@ public class MainActivity extends AppCompatActivity {
 
     //Database helper that will provide access to the database
     private DataDbHelper mDbHelper;
+
+    Toolbar mtoolbar;
 
 //    RecyclerView recyclerView;
 //    //Adapter
@@ -22,6 +25,17 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mtoolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mtoolbar);
+        mtoolbar.setTitle("Request History");
+//        mtoolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
+        mtoolbar.setOnClickListener (new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                backToMain();
+            }
+        });
 
 //        recyclerView = findViewById(R.id.recycler_view);
 //        adapter = new UserAdapter(this, mInflater);
