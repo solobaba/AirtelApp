@@ -1,4 +1,4 @@
-package com.example.mighty.airtelapp.Sercvice;
+package com.example.mighty.airtelapp.Service;
 
 import android.content.Context;
 import android.os.AsyncTask;
@@ -41,7 +41,7 @@ public class EmailMessage extends AsyncTask<Void, Void, Void>{
     @Override
     protected void onPreExecute() {
         super.onPreExecute ();
-        Toast.makeText(context, "Email sending, please wait...", Toast.LENGTH_LONG).show();
+        Toast.makeText(context, "Email sent", Toast.LENGTH_LONG).show();
     }
 
     @Override

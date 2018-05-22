@@ -1,4 +1,4 @@
-package com.example.mighty.airtelapp;
+package com.example.mighty.airtelapp.Service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.accessibilityservice.AccessibilityServiceInfo;
@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.widget.Toast;
+
+import com.example.mighty.airtelapp.CreateUser;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -54,13 +56,12 @@ public class USSDService extends AccessibilityService {
 
             //Processing information
             Intent broadcastIntent = new Intent();
-            broadcastIntent.setAction(CreateUser.Receiver.ACTION_RESPONSE);
+            broadcastIntent.setAction( CreateUser.Receiver.ACTION_RESPONSE);
             broadcastIntent.addCategory(Intent.CATEGORY_DEFAULT);
             broadcastIntent.putExtra("result", text);
             broadcastIntent.putExtra("current time", currentTime);
             sendBroadcast(broadcastIntent);
         }
-
 
 
 
@@ -106,6 +107,7 @@ public class USSDService extends AccessibilityService {
 
     }
 
+
     private String processUSSDText(List<CharSequence> eventText) {
         for (CharSequence s : eventText) {
             String text = String.valueOf(s);
@@ -116,8 +118,6 @@ public class USSDService extends AccessibilityService {
         }
         return null;
     }
-
-
 
 
 

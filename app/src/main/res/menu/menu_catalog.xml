@@ -24,4 +24,10 @@
         android:title="@string/contact_network"
         app:showAsAction="never" />
 
+    <!--<item-->
+        <!--android:id="@+id/back_arrow"-->
+        <!--android:title="Backarrow"-->
+        <!--android:icon="@drawable/backarrow"-->
+        <!--app:showAsAction="always" />-->
+
 </menu>

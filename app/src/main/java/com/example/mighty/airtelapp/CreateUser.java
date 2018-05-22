@@ -22,6 +22,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -37,9 +38,9 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mighty.airtelapp.Sercvice.EmailMessage;
-import com.example.mighty.airtelapp.Sercvice.NotificationClass;
-import com.example.mighty.airtelapp.Sercvice.QueryService;
+import com.example.mighty.airtelapp.Service.EmailMessage;
+import com.example.mighty.airtelapp.Service.NotificationClass;
+import com.example.mighty.airtelapp.Service.QueryService;
 import com.example.mighty.airtelapp.data.DataContract.DataEntry;
 import com.example.mighty.airtelapp.data.DataDbHelper;
 import com.example.mighty.airtelapp.data.RequestHistory;
@@ -50,8 +51,9 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 public class CreateUser extends AppCompatActivity {
+
+    Toolbar mtoolbar;
 
     public static final String AIRTEL_CODE = "123";
     public static final String CONTACT_NETWORK = "1";
@@ -61,12 +63,12 @@ public class CreateUser extends AppCompatActivity {
     Button button, dataButton;
 
     //Airtel data codes
-    public static final String ONE_FIVE_GIG = "1.5GB";
-    public static final String THREE_FIVE_GIG = "3.5GB";
-    public static final String FIVE_GIG = "5GB";
-    public static final String CODE_ONE_FIVE_GIG = "*141**5*2*1*5*1";
-    public static final String CODE_THREE_FIVE_GIG = "*141**5*2*1*4*1";
-    public static final String CODE_FIVE_GIG = "*141**5*2*1*3*1";
+    public static final String ONE_FIVE_GB = "1.5GB";
+    public static final String THREE_FIVE_GB = "3.5GB";
+    public static final String FIVE_GB = "5GB";
+    public static final String CODE_ONE_FIVE_GB = "*141**5*2*1*5*1";
+    public static final String CODE_THREE_FIVE_GB = "*141**5*2*1*4*1";
+    public static final String CODE_FIVE_GB = "*141**5*2*1*3*1";
 
     String recNum;
     String dataName;
@@ -83,16 +85,12 @@ public class CreateUser extends AppCompatActivity {
     Date date;
 
     private Receiver receiver;
-    private TextView dataBalance;
+    private TextView dataBalance, dataTime;
     String mResult, currentTime, CURRENT_BALANCE, CURRENT_TIME;
 
     private String mRequestSource = DataEntry.REQUEST_SOURCE_UNKNOWN;
     public String mDataBundleValue = DataEntry.REQUEST_VALUE_UNKNOWN;
     private boolean mRequestSourceHasChanged = false;
-
-//    public static final String NOTIFY_ONE_FIVE = "com.example.mighty.airtelapp.oneFive";
-//    public static final String NOTIFY_THREE_FIVE = "com.example.mighty.airtelapp.threeFive";
-//    public static final String NOTIFY_FIVE = "com.example.mighty.airtelapp.five";
 
     private View.OnTouchListener mTouchListener = new View.OnTouchListener() {
         @Override
@@ -105,6 +103,19 @@ public class CreateUser extends AppCompatActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_user);
+
+       mtoolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mtoolbar);
+        mtoolbar.setTitle("AirtelApp");
+//        mtoolbar.setTitle(getString(R.string.app_name));
+        mtoolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
+        mtoolbar.setOnClickListener (new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                backToMain();
+            }
+        });
+
         Intent intent = new Intent(this, QueryService.class);
         startService(intent);
 
@@ -114,7 +125,7 @@ public class CreateUser extends AppCompatActivity {
         registerReceiver(receiver, filter);
 
         mDbHelper = new DataDbHelper(this);
-        dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        dateFormat = new SimpleDateFormat ("yyyy/MM/dd HH:mm:ss");
         date = new Date();
 
         recipientNumber = findViewById(R.id.recipient_number);
@@ -135,12 +146,15 @@ public class CreateUser extends AppCompatActivity {
 
         //Data balance
         dataBalance = (TextView)findViewById(R.id.balance_airtime);
+//        dataTime = (TextView) findViewById(R.id.balance_airtime);
         dataButton = findViewById(R.id.data_balance);
 
         //Save data balance received from onReceiver
         SharedPreferences sharedPreferences = getSharedPreferences("com.example.mighty.airtelapp", Context.MODE_PRIVATE);
         CURRENT_BALANCE = sharedPreferences.getString("dataBalance", "");
+//        CURRENT_TIME = sharedPreferences.getString("currentTime", "");
         dataBalance.setText(CURRENT_BALANCE);
+//        dataTime.setText(CURRENT_TIME);
 
         setupSpinner();
         setupDataValue();
@@ -164,6 +178,11 @@ public class CreateUser extends AppCompatActivity {
                 checkBal();
             }
         });
+    }
+
+    private void backToMain() {
+//        onBackPressed();
+        startActivity(new Intent(this, MainActivity.class));
     }
 
     //Setup the request source dropdown spinner
@@ -278,7 +297,7 @@ public class CreateUser extends AppCompatActivity {
 //            Toast.makeText(this, "Data sent with row id: " + newRowId, Toast.LENGTH_SHORT).show();
 //        }
 
-//        airtelData();
+        airtelData();
         String message = "Be Mighty!, You received " + mDataBundleValue + " " + dataName + " from Mighty Interactive Limited. " +
                 "Kindly dial *461*2# to check your balance. Thank you!";
         String phoneNumber = recNum;
@@ -303,7 +322,7 @@ public class CreateUser extends AppCompatActivity {
 
     private void emailMessage(){
         String email = "interactivemighty@gmail.com";
-        String subject = "Mighty Data";
+        String subject = "Mighty Data Notification";
         String message = "Be Mighty!, You received " + mDataBundleValue + " " + dataName + " from Mighty Interactive Limited. " +
                 "Kindly dial *461*2# to check your balance. Thank you!";
 
@@ -374,15 +393,17 @@ public class CreateUser extends AppCompatActivity {
 //    }
 
     private void airtelData(){
-        if (mDataBundleValue.equals(ONE_FIVE_GIG)){
-            String ussdCode = CODE_ONE_FIVE_GIG + recNum + Uri.encode("#");
+        if (mDataBundleValue.equals(ONE_FIVE_GB)){
+            String ussdCode = CODE_ONE_FIVE_GB + recNum + Uri.encode("#");
             startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
-        }else if (mDataBundleValue.equals(THREE_FIVE_GIG)){
-            String ussdCode = CODE_THREE_FIVE_GIG + recNum + Uri.encode("#");
+        }else if (mDataBundleValue.equals(THREE_FIVE_GB)){
+            String ussdCode = CODE_THREE_FIVE_GB + recNum + Uri.encode("#");
             startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
-        }else {
-            String ussdCode = CODE_ONE_FIVE_GIG + recNum + Uri.encode("#");
+        }else if (mDataBundleValue.equals(FIVE_GB)){
+            String ussdCode = CODE_FIVE_GB + recNum + Uri.encode("#");
             startActivity(new Intent("android.intent.action.CALL", Uri.parse("tel:" + ussdCode)));
+        } else {
+            mDataBundleValue = DataEntry.REQUEST_VALUE_UNKNOWN;
         }
     }
 
@@ -446,10 +467,20 @@ public class CreateUser extends AppCompatActivity {
                     editor.putString("currentTime", currentTime);
                     editor.apply();
                     dataBalance.setText(mDataBalance);
+//                    dataTime.setText(currentTime);
                 } else {
                     dataBalance.setText(mResult);
+//                    dataTime.setText(currentTime);
                 }
+                trackBalance();
             }
+        }
+    }
+
+    public void trackBalance(){
+        TextView mDataBalance = dataBalance;
+        if(mDataBalance.equals(dataBalance)){
+
         }
     }
 
@@ -467,6 +498,8 @@ public class CreateUser extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        //Inflate the menu options from the res/menu/menu_catalog.xml file
+        //This adds menu items to the app bar
         getMenuInflater().inflate(R.menu.menu_catalog, menu);
         return true;
     }
