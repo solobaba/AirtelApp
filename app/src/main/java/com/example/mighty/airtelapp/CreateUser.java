@@ -315,7 +315,7 @@ public class CreateUser extends AppCompatActivity {
 //        }
 
         airtelData();
-        String message = "Be Mighty!, You received " + mDataBundleValue + " " + dataName + " from Mighty Interactive Limited. " + "Kindly dial *461*2# to check your balance. Thank you!";
+        String message = "Be Mighty! You received " + mDataBundleValue + " " + dataName + " from Mighty Interactive Limited. " + "Kindly dial *461*2# to check your balance. Thank you!";
         String phoneNumber = recNum;
         sendSMS (phoneNumber, message);
         emailMessage();
@@ -339,7 +339,7 @@ public class CreateUser extends AppCompatActivity {
     private void emailMessage(){
         String email = "interactivemighty@gmail.com";
         String subject = "Mighty Data Notification";
-        String message = "Be Mighty!, You received " + mDataBundleValue + " " + dataName + " from Mighty Interactive Limited. " + "Kindly dial *461*2# to check your balance. Thank you!";
+        String message = "Be Mighty! You received " + mDataBundleValue + " airtime from Mighty Interactive Limited. " + "\nKindly dial *461*2# to check your balance. Thank you!";
 
         try{
             EmailMessage emailMsg = new EmailMessage (this, email, subject, message);
@@ -497,9 +497,6 @@ public class CreateUser extends AppCompatActivity {
                     editor.apply();
                     dataBalance.setText(mDataBalance);
                     //dataTime.setText(currentTime);
-
-
-
                 }else{
                     dataBalance.setText(mResult);
 //                    dataTime.setText(currentTime);
