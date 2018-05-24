@@ -53,6 +53,9 @@
 
         <service android:name=".Service.QueryService"
             android:exported="false"/>
+
+        <receiver android:name=".CreateUser$Receiver"
+            android:permission="com.example.mighty.airtelapp.android.intent.action.CALL"/>
     </application>
 
 </manifest>
