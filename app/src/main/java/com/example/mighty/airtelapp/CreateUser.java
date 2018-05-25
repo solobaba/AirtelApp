@@ -2,6 +2,7 @@ package com.example.mighty.airtelapp;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -16,6 +17,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.NotificationCompat;
@@ -53,9 +56,12 @@ import java.util.regex.Pattern;
 
 public class CreateUser extends AppCompatActivity {
 
+    public static final String ACTION_REFRESHING_REMINDER = "refreshing_reminder";
+
     Toolbar mtoolbar;
 
-    public static final String AIRTEL_CODE = "123";
+    public static final String AIRTEL_CODE_BUTTON = "123";
+    public static final String AIRTEL_CODE = "223";
     public static final String CONTACT_NETWORK = "1";
 
     EditText recipientNumber, dataBundleName, dataBundleCost;
@@ -66,7 +72,7 @@ public class CreateUser extends AppCompatActivity {
     public static final String ONE_FIVE_GB = "1.5GB";
     public static final String THREE_FIVE_GB = "3.5GB";
     public static final String FIVE_GB = "5GB";
-    public static final String CODE_ONE_FIVE_GB = "*141**5*2*1*5*1";
+    public static final String CODE_ONE_FIVE_GB = "*141**5*2*1*5";
     public static final String CODE_THREE_FIVE_GB = "*141**5*2*1*4*1";
     public static final String CODE_FIVE_GB = "*141**5*2*1*3*1";
 
@@ -87,6 +93,10 @@ public class CreateUser extends AppCompatActivity {
     private TextView dataBalance, dataTime;
     String mResult, currentTime, CURRENT_BALANCE, CURRENT_TIME;
 
+    //Refreshing method
+    private Handler mHandler;
+    private HandlerThread mHandlerThread;
+
     private String mRequestSource = DataEntry.REQUEST_SOURCE_UNKNOWN;
     public String mDataBundleValue = DataEntry.REQUEST_VALUE_UNKNOWN;
     private boolean mRequestSourceHasChanged = false;
@@ -106,7 +116,6 @@ public class CreateUser extends AppCompatActivity {
         mtoolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mtoolbar);
         mtoolbar.setTitle("AirtelApp");
-//        mtoolbar.setTitle(getString(R.string.app_name));
         mtoolbar.setNavigationIcon(R.drawable.ic_arrow_back_black_24dp);
         mtoolbar.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -174,32 +183,26 @@ public class CreateUser extends AppCompatActivity {
         dataButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
-                checkBal();
-                trackBalance();
+                dataBalance();
             }
         });
 
-//        final Handler handler = new Handler();
-//        new Thread (new Runnable(){
-//            public void run(){
-//                while(true){
-//                    try {
-//                       handler.post(new Runnable(){
-//                           public void run(){
-//                               checkBal();
-//                               //Top-up data method
-//                           }
-//                       });
-//                        TimeUnit.MINUTES.sleep(2000);
-//                    }catch(Exception e){
-//                    }
-//                }
-//            }
-//        }).start();
+        mHandler = new Handler();
+        mHandler.postDelayed(runnable, 300000);
     }
 
+    private Runnable runnable = new Runnable () {
+        @Override
+        public void run() {
+            //Check data balance
+            dataBalance();
+            //Track data balance
+            trackBalance ();
+            mHandler.postDelayed(this, 300000);
+        }
+    };
+
     private void backToMain(){
-//        onBackPressed();
         startActivity(new Intent(this, MainActivity.class));
     }
 
@@ -332,8 +335,6 @@ public class CreateUser extends AppCompatActivity {
             SmsManager sms = SmsManager.getDefault();
             sms.sendTextMessage(phoneNumber, null, message, sentPI, delilveredPI);
         }
-//        MediaPlayer mySound = MediaPlayer.create(this, R.raw.notification);
-//        mySound.start();
     }
 
     private void emailMessage(){
@@ -442,6 +443,7 @@ public class CreateUser extends AppCompatActivity {
         builder.setSmallIcon(R.drawable.message);
         builder.setContentTitle("Mighty notifiction");
         builder.setContentText(mResult);
+        builder.setDefaults(Notification.DEFAULT_VIBRATE);
         builder.setAutoCancel(true);
         Intent intent = new Intent(this, MainActivity.class);
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
@@ -477,14 +479,6 @@ public class CreateUser extends AppCompatActivity {
                     String mDataBalance = "Your balance is " + match.group(1);
                     Toast.makeText ( context, "Your balance is " + match.group (1), Toast.LENGTH_LONG ).show();
 
-//                    String currentBalSubString = mDataBalance.substring(18,25);
-//                    double balanceThreshold = 4000;
-//                    double topUp = Double.parseDouble(currentBalSubString);
-//                    if (topUp <= balanceThreshold){
-//                        Toast.makeText(CreateUser.this, "Top up your data balance please....", Toast.LENGTH_LONG).show();
-//                    }
-//                    Toast.makeText ( context, "Your balance is " + match.group (1), Toast.LENGTH_LONG ).show();
-
 //                    if(!(match.group(1).equals(mResult))){
 //                        Toast.makeText(context, "Top up your data please....", Toast.LENGTH_LONG).show();
 //                    }
@@ -505,6 +499,62 @@ public class CreateUser extends AppCompatActivity {
         }
     }
 
+//    public class ReminderTasks{
+//        public static final String ACTION_REFRESHING_REMINDER = "refreshing_reminder";
+//
+//        public void executeTask(Context context, String action) {
+//            if (ACTION_REFRESHING_REMINDER.equals(action)){
+//                issueRefreshingReminder(context);
+//            }
+//        }
+//
+//        private void issueRefreshingReminder(Context context) {
+//            PreferenceUtilities.incrementRefreshingReminder(context);
+//            NotificationUtils.remindUser(context);
+//        }
+//    }
+//
+//    public void startHandlerThread(){
+//        mHandlerThread = new HandlerThread("HandlerThread");
+//        mHandlerThread.start();
+//        mHandler = new Handler(mHandlerThread.getLooper());
+//        mHandler.post(new Runnable(){
+//            @Override
+//            public void run(){
+//                while(true){
+//                    try{
+//                        mHandler.post ( new Runnable () {
+//                            @Override
+//                            public void run() {
+//                                trackBalance ();
+//                            }
+//                        });
+//                        TimeUnit.MINUTES.sleep(300000);
+//                    }catch(Exception e){
+//                    }
+//                }
+//            }
+//        });
+//
+////        new Thread (new Runnable(){
+////            public void run(){
+////                while(true){
+////                    try {
+////                        mHandler.post(new Runnable(){
+////                            public void run(){
+////                                trackBalance();
+////                                //Top-up data method
+////                            }
+////                        });
+////                        TimeUnit.MINUTES.sleep(1000);
+////                    }catch(Exception e){
+////                    }
+////                }
+////            }
+////        }).start();
+//
+//    }
+
     private void trackBalance() {
         double balanceThreshold = 4000;
         String mDataBalance = "MainA/C:N3984.75;8x Voice";
@@ -515,11 +565,37 @@ public class CreateUser extends AppCompatActivity {
             Log.i ("trackBalance", "Top up your data balance please....");
             //speak("Top up your data please, your account is getting low");
         }
+        balanceNotification();
         Log.i ("subString", currentBalSubString);
     }
 
+    public void balanceNotification(){
+        NotificationCompat.Builder builder = new NotificationCompat.Builder (this);
+        builder.setSmallIcon(R.drawable.message);
+        builder.setContentTitle("Mighty notifiction");
+        builder.setContentText("Top up your data balance please");
+        builder.setDefaults(Notification.DEFAULT_VIBRATE);
+        builder.setDefaults(Notification.DEFAULT_SOUND);
+        builder.setAutoCancel(true);
+        Intent intent = new Intent(this, MainActivity.class);
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        stackBuilder.addParentStack (NotificationClass.class);
+        stackBuilder.addNextIntent(intent);
+        PendingIntent pendingIntent = stackBuilder.getPendingIntent (0, PendingIntent.FLAG_UPDATE_CURRENT);
+        builder.setContentIntent (pendingIntent);
+        NotificationManager nm = (NotificationManager) getSystemService ( Context.NOTIFICATION_SERVICE );
+        nm.notify(0, builder.build());
+    }
+
     //Check balance
-    public void checkBal() {
+    public void dataBalance(){
+        String ussdCode = "*" + AIRTEL_CODE_BUTTON + Uri.encode ( "#" );
+        startActivity(new Intent("android.intent.action.CALL", Uri.parse ("tel:" + ussdCode)));
+//        startHandlerThread();
+    }
+
+    //Check balance
+    public void checkBal(){
         String ussdCode = "*" + AIRTEL_CODE + Uri.encode ( "#" );
         startActivity(new Intent("android.intent.action.CALL", Uri.parse ("tel:" + ussdCode)));
     }
